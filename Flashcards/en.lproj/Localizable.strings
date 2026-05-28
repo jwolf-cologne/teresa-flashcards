@@ -84,6 +84,7 @@
 "Manuelles Lernen bleibt kostenlos. KI-Karten und Antwort-Hilfen benötigen ein Abo." = "Manual studying stays free. AI cards and answer helpers require a subscription.";
 "KI freischalten" = "Unlock AI";
 "Käufe wiederherstellen" = "Restore purchases";
+"KI-Abo laden" = "Load AI subscription";
 "Das KI-Abo ist gerade nicht verfügbar. Bitte versuche es später erneut." = "The AI subscription is currently unavailable. Please try again later.";
 "Das KI-Abo konnte gerade nicht geladen werden. In TestFlight kann das einige Minuten nach dem Upload dauern." = "The AI subscription could not be loaded right now. In TestFlight this can take a few minutes after upload.";
 "Preis wird geladen" = "Loading price";

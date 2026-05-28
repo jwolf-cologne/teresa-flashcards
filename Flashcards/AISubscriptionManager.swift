@@ -50,16 +50,19 @@ final class AISubscriptionManager: ObservableObject {
     }
 
     func purchaseMonthlySubscription() async {
-        guard let product = monthlyProduct else {
+        isLoading = true
+        defer { isLoading = false }
+
+        if monthlyProduct == nil {
             await loadProducts()
+        }
+
+        guard let product = monthlyProduct else {
             if products.isEmpty {
                 statusMessage = String(localized: "Das KI-Abo ist gerade nicht verfügbar. Bitte versuche es später erneut.")
             }
             return
         }
-
-        isLoading = true
-        defer { isLoading = false }
 
         do {
             let result = try await product.purchase()

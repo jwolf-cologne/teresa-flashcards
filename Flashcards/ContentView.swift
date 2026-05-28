@@ -1247,6 +1247,9 @@ private struct AIPaywallView: View {
                     if subscriptionManager.isLoading {
                         ProgressView()
                             .frame(maxWidth: .infinity)
+                    } else if subscriptionManager.monthlyProduct == nil {
+                        Text("KI-Abo laden")
+                            .frame(maxWidth: .infinity)
                     } else {
                         Text(String(format: String(localized: "Für %@ pro Monat aktivieren"), subscriptionManager.monthlyPriceText))
                             .frame(maxWidth: .infinity)
@@ -1254,7 +1257,7 @@ private struct AIPaywallView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                .disabled(subscriptionManager.isLoading || subscriptionManager.monthlyProduct == nil)
+                .disabled(subscriptionManager.isLoading)
 
                 Button("Käufe wiederherstellen") {
                     Task {
