@@ -286,30 +286,96 @@ struct ContentView: View {
     }
 
     private var deckOverview: some View {
-        ScrollView {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 16)], spacing: 16) {
-                ForEach(deckNames, id: \.self) { deckName in
-                    let cards = sortedFlashcards(in: deckName)
+        let dueCards = flashcards
+            .filter { $0.nextReviewDate <= Date() }
+            .sorted { $0.nextReviewDate < $1.nextReviewDate }
 
-                    NavigationLink(value: NavigationRoute.deckDetail(deckName)) {
-                        DeckTileView(deckName: deckName, cardCount: cards.count, dueCount: cards.filter { $0.nextReviewDate <= Date() }.count)
+        return ZStack {
+            OverviewBackground()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    DeckOverviewHeroView(cardCount: flashcards.count, dueCards: dueCards.count) {
+                        if let firstDueCard = dueCards.first {
+                            NavigationLink {
+                                StudyCardView(cards: flashcards, startCard: firstDueCard, speechLanguageCode: languageCode(for: firstDueCard.deckName), subscriptionManager: subscriptionManager)
+                            } label: {
+                                Label("Lernen", systemImage: "play.fill")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                            .tint(.orange)
+                        } else {
+                            Label("Nichts fällig", systemImage: "checkmark.circle.fill")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 13)
+                                .foregroundStyle(.green)
+                                .background(.green.opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
+                        }
                     }
-                    .buttonStyle(.plain)
-                }
 
-                Button {
-                    newDeckOnlyName = ""
-                    showingAddDeckSheet = true
-                } label: {
-                    AddDeckTileView()
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("Deine Stapel")
+                            .font(.title2.bold())
+
+                        Spacer()
+
+                        Text(localizedDeckCount(deckNames.count))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 158), spacing: 16)], spacing: 16) {
+                        ForEach(Array(deckNames.enumerated()), id: \.element) { index, deckName in
+                            let cards = sortedFlashcards(in: deckName)
+
+                            NavigationLink(value: NavigationRoute.deckDetail(deckName)) {
+                                DeckTileView(deckName: deckName, cardCount: cards.count, dueCount: cards.filter { $0.nextReviewDate <= Date() }.count, accent: DeckTileStyle.accent(for: index))
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        Button {
+                            newDeckOnlyName = ""
+                            showingAddDeckSheet = true
+                        } label: {
+                            AddDeckTileView()
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                .buttonStyle(.plain)
+                .padding()
             }
-            .padding()
         }
         .overlay {
             if deckNames.isEmpty {
-                ContentUnavailableView("Noch keine Stapel", systemImage: "square.stack.3d.up", description: Text("Erstelle eine Karte, um deinen ersten Stapel anzulegen."))
+                VStack(spacing: 16) {
+                    Image(systemName: "sparkles.rectangle.stack.fill")
+                        .font(.system(size: 48, weight: .bold))
+                        .foregroundStyle(.blue, .purple)
+
+                    Text("Lerne mit Teresa")
+                        .font(.title.bold())
+
+                    Text("Erstelle deinen ersten Stapel und starte deine Lernrunde.")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    Button {
+                        newDeckOnlyName = ""
+                        showingAddDeckSheet = true
+                    } label: {
+                        Label("Neuer Stapel", systemImage: "plus")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                }
+                .padding(28)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24))
+                .padding()
             }
         }
     }
@@ -741,6 +807,14 @@ struct ContentView: View {
 
         return String(format: String(localized: "%@: %@"), title, daysText)
     }
+
+    private func localizedDeckCount(_ count: Int) -> String {
+        if count == 1 {
+            return String(localized: "1 Stapel")
+        }
+
+        return String(format: String(localized: "%lld Stapel"), Int64(count))
+    }
 }
 
 private enum NavigationRoute: Hashable {
@@ -753,17 +827,154 @@ private struct AIDeckSelection: Identifiable {
     let deckName: String
 }
 
+private struct OverviewBackground: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            Color(.systemBackground)
+                .ignoresSafeArea()
+
+            LinearGradient(
+                colors: colorScheme == .dark
+                    ? [
+                        Color(red: 0.08, green: 0.10, blue: 0.16),
+                        Color(red: 0.02, green: 0.02, blue: 0.03)
+                    ]
+                    : [
+                        Color(red: 0.94, green: 0.97, blue: 1.0),
+                        Color(.systemBackground)
+                    ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+        }
+    }
+}
+
+private struct DeckOverviewHeroView<LearningAction: View>: View {
+    let cardCount: Int
+    let dueCards: Int
+    @ViewBuilder var learningAction: LearningAction
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(alignment: .top, spacing: 14) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Lerne mit Teresa")
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.72)
+
+                    Text(dueCards > 0 ? localizedDueMessage(dueCards) : String(localized: "Alles gelernt. Teresa ist bereit für neue Karten."))
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 10)
+
+                Image(systemName: "sparkles")
+                    .font(.title2.weight(.bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 46, height: 46)
+                    .background(
+                        LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        in: Circle()
+                    )
+                    .shadow(color: .blue.opacity(0.28), radius: 14, x: 0, y: 8)
+            }
+
+            HStack(spacing: 10) {
+                LearningMetricView(title: "Heute", value: dueCards, color: .orange, systemImage: "flame.fill")
+                LearningMetricView(title: "Gesamt", value: cardCount, color: .blue, systemImage: "rectangle.stack.fill")
+            }
+
+            learningAction
+        }
+        .padding(20)
+        .background {
+            RoundedRectangle(cornerRadius: 26)
+                .fill(.regularMaterial)
+                .overlay(alignment: .topTrailing) {
+                    Circle()
+                        .fill(.orange.opacity(0.18))
+                        .frame(width: 120, height: 120)
+                        .blur(radius: 18)
+                        .offset(x: 28, y: -44)
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 26)
+                        .stroke(.white.opacity(0.12), lineWidth: 1)
+                }
+        }
+    }
+
+    private func localizedDueMessage(_ count: Int) -> String {
+        if count == 1 {
+            return String(localized: "Heute wartet 1 Karte auf dich.")
+        }
+
+        return String(format: String(localized: "Heute warten %lld Karten auf dich."), Int64(count))
+    }
+}
+
+private struct LearningMetricView: View {
+    let title: String
+    let value: Int
+    let color: Color
+    let systemImage: String
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: systemImage)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(color)
+                .frame(width: 28, height: 28)
+                .background(color.opacity(0.16), in: Circle())
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text("\(value)")
+                    .font(.headline.bold())
+
+                Text(LocalizedStringKey(title))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(color.opacity(0.10), in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+private enum DeckTileStyle {
+    static let palette: [Color] = [.blue, .mint, .orange, .purple, .pink, .green, .cyan]
+
+    static func accent(for index: Int) -> Color {
+        palette[index % palette.count]
+    }
+}
+
 private struct DeckTileView: View {
     let deckName: String
     let cardCount: Int
     let dueCount: Int
+    let accent: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
-                Image(systemName: "rectangle.stack.fill")
-                    .font(.title3)
-                    .foregroundStyle(.blue)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(accent.opacity(0.18))
+                        .frame(width: 42, height: 42)
+
+                    Image(systemName: "rectangle.stack.fill")
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(accent)
+                }
 
                 Spacer()
 
@@ -773,8 +984,9 @@ private struct DeckTileView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(.orange)
+                        .background(.orange.gradient)
                         .clipShape(Capsule())
+                        .shadow(color: .orange.opacity(0.35), radius: 8, x: 0, y: 4)
                         .accessibilityLabel(Text(String(format: String(localized: "%lld heute fällig"), Int64(dueCount))))
                 }
             }
@@ -791,11 +1003,33 @@ private struct DeckTileView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+
+            ProgressView(value: cardCount == 0 ? 0 : min(Double(dueCount) / Double(max(cardCount, 1)), 1))
+                .tint(accent)
+                .opacity(cardCount == 0 ? 0.35 : 1)
         }
         .frame(maxWidth: .infinity, minHeight: 132, alignment: .leading)
         .padding(16)
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.regularMaterial)
+                .overlay(alignment: .topLeading) {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(
+                            LinearGradient(
+                                colors: [accent.opacity(0.18), .clear],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(accent.opacity(0.22), lineWidth: 1)
+                }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: accent.opacity(0.10), radius: 18, x: 0, y: 10)
     }
 
     private func localizedFlashcardCount(_ count: Int) -> String {
@@ -812,16 +1046,30 @@ private struct AddDeckTileView: View {
         VStack(spacing: 12) {
             Image(systemName: "plus")
                 .font(.system(size: 34, weight: .semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white)
+                .frame(width: 58, height: 58)
+                .background(
+                    LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing),
+                    in: Circle()
+                )
 
             Text("Neuer Stapel")
-                .font(.subheadline.weight(.medium))
+                .font(.headline.weight(.bold))
+                .foregroundStyle(.primary)
+
+            Text("Starte ein neues Thema")
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity, minHeight: 132)
         .padding(16)
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .overlay {
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(.blue.opacity(0.24), style: StrokeStyle(lineWidth: 1, dash: [6, 6]))
+        }
     }
 }
 
@@ -1800,25 +2048,44 @@ extension Flashcard {
 
 struct IntroView: View {
     let onFinished: () -> Void
-    @State private var cardRotation = -8.0
-    @State private var cardOffset = 22.0
+    @State private var cardSpread = false
+    @State private var cardFloat = false
     @State private var titleScale = 0.92
     @State private var titleOpacity = 0.0
-    @State private var glowScale = 0.75
+    @State private var glowScale = 0.82
+    @State private var progress = 0.0
 
     var body: some View {
         ZStack {
             LinearGradient(
-                gradient: Gradient(colors: [Color.blue.opacity(0.92), Color.purple.opacity(0.86)]),
+                gradient: Gradient(colors: [
+                    Color(red: 0.07, green: 0.11, blue: 0.22),
+                    Color(red: 0.12, green: 0.18, blue: 0.42),
+                    Color(red: 0.52, green: 0.24, blue: 0.78)
+                ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
 
-            VStack(spacing: 24) {
-                VStack(spacing: 10) {
+            Circle()
+                .fill(.cyan.opacity(0.22))
+                .frame(width: 260, height: 260)
+                .blur(radius: 38)
+                .offset(x: -140, y: -280)
+                .scaleEffect(glowScale)
+
+            Circle()
+                .fill(.orange.opacity(0.18))
+                .frame(width: 220, height: 220)
+                .blur(radius: 34)
+                .offset(x: 160, y: 250)
+                .scaleEffect(cardFloat ? 1.18 : 0.9)
+
+            VStack(spacing: 28) {
+                VStack(spacing: 12) {
                     Text("Study Cards")
-                        .font(.system(size: 46, weight: .bold, design: .rounded))
+                        .font(.system(size: 48, weight: .black, design: .rounded))
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
@@ -1827,48 +2094,69 @@ struct IntroView: View {
                         .opacity(titleOpacity)
 
                     Text("Learn with Teresa")
-                        .font(.title3.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.82))
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.88))
                         .opacity(titleOpacity)
                 }
 
-                ZStack {
-                    Circle()
-                        .fill(.white.opacity(0.18))
-                        .frame(width: 150, height: 150)
-                        .scaleEffect(glowScale)
-                        .blur(radius: 16)
+                ZStack(alignment: .center) {
+                    IntroLearningCard(
+                        title: "Merken",
+                        subtitle: "Wiederholen",
+                        systemImage: "brain.head.profile",
+                        tint: .orange
+                    )
+                    .rotationEffect(.degrees(cardSpread ? -12 : -2))
+                    .offset(x: cardSpread ? -76 : -16, y: cardSpread ? 22 : 6)
+                    .scaleEffect(0.92)
 
-                    RoundedRectangle(cornerRadius: 24)
+                    IntroLearningCard(
+                        title: "Verstehen",
+                        subtitle: "Schritt für Schritt",
+                        systemImage: "lightbulb.fill",
+                        tint: .mint
+                    )
+                    .rotationEffect(.degrees(cardSpread ? 11 : 2))
+                    .offset(x: cardSpread ? 76 : 16, y: cardSpread ? 18 : 6)
+                    .scaleEffect(0.92)
+
+                    RoundedRectangle(cornerRadius: 30)
                         .fill(.white)
-                        .frame(width: 172, height: 224)
-                        .shadow(color: .black.opacity(0.22), radius: 26, x: 0, y: 16)
+                        .frame(width: 210, height: 254)
+                        .shadow(color: .black.opacity(0.28), radius: 28, x: 0, y: 18)
                         .overlay {
-                            VStack(spacing: 16) {
+                            VStack(spacing: 18) {
                                 Image(systemName: "sparkles")
-                                    .font(.system(size: 36, weight: .bold))
-                                    .foregroundStyle(.purple)
+                                    .font(.system(size: 40, weight: .bold))
+                                    .foregroundStyle(
+                                        LinearGradient(colors: [.purple, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                    )
 
                                 Text("Ready?")
-                                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                                    .font(.system(size: 30, weight: .black, design: .rounded))
                                     .foregroundStyle(.black)
                                     .lineLimit(1)
 
                                 Text("Tap. Flip. Learn.")
-                                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
                                     .foregroundStyle(.black.opacity(0.68))
                                     .lineLimit(1)
-                                    .minimumScaleFactor(0.8)
+                                    .minimumScaleFactor(0.75)
+
+                                ProgressView(value: progress)
+                                    .tint(.purple)
+                                    .frame(width: 130)
                             }
-                            .padding(18)
+                            .padding(20)
                         }
-                        .rotation3DEffect(.degrees(cardRotation), axis: (x: 0, y: 1, z: 0))
-                        .offset(y: cardOffset)
+                        .rotationEffect(.degrees(cardFloat ? 2.5 : -2.5))
+                        .offset(y: cardFloat ? -8 : 4)
                 }
+                .frame(height: 290)
 
                 Text("Deine Karten. Dein Tempo.")
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.78))
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.82))
             }
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -1877,17 +2165,56 @@ struct IntroView: View {
             withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
                 titleScale = 1.0
                 titleOpacity = 1.0
-                cardOffset = 0
+                cardSpread = true
             }
 
-            withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
-                cardRotation = 8
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                cardFloat = true
                 glowScale = 1.15
+            }
+
+            withAnimation(.easeInOut(duration: 1.8)) {
+                progress = 1.0
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
                 onFinished()
             }
         }
+    }
+}
+
+private struct IntroLearningCard: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    let tint: Color
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 26)
+            .fill(.white.opacity(0.88))
+            .frame(width: 170, height: 220)
+            .overlay {
+                VStack(alignment: .leading, spacing: 12) {
+                    Image(systemName: systemImage)
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(tint)
+                        .frame(width: 42, height: 42)
+                        .background(tint.opacity(0.16), in: Circle())
+
+                    Spacer()
+
+                    Text(LocalizedStringKey(title))
+                        .font(.headline.bold())
+                        .foregroundStyle(.black)
+
+                    Text(LocalizedStringKey(subtitle))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.black.opacity(0.58))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(18)
+            }
+            .shadow(color: .black.opacity(0.18), radius: 18, x: 0, y: 12)
     }
 }

@@ -6,6 +6,8 @@ All notable public-facing changes should be tracked here.
 
 - Created project repository documentation.
 - Added roadmap and changelog tracking.
+- Redesigned the intro screen with a more motivating Teresa learning moment.
+- Redesigned the deck overview with a learning hero area and more expressive deck tiles.
 
 ## 1.0 - In Preparation
 
