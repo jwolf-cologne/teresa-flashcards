@@ -2180,7 +2180,7 @@ struct IntroView: View {
                 progress = 1.0
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 20.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
                 onFinished()
             }
         }
