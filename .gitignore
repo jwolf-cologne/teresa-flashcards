@@ -1,0 +1,34 @@
+.DS_Store
+
+# Xcode user state
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+
+# Build products and archives
+DerivedData/
+build/
+*.xcarchive
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Supabase local state
+supabase/.temp/
+
+# Secrets and local credentials
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+*.key
+*.pem
+.env
+.env.*
+
+# Local databases and stores
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.store

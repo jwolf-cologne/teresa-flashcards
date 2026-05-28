@@ -1,0 +1,68 @@
+{
+  "identifier" : "8D9F8F7C",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_timeRate" : 1
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "10000001",
+      "localizations" : [
+        {
+          "description" : "Unlock AI cards and study helpers",
+          "displayName" : "AI Features",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "KI-Karten und Lernhilfen freischalten",
+          "displayName" : "KI-Funktionen",
+          "locale" : "de_DE"
+        }
+      ],
+      "name" : "KI-Funktionen",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "10000002",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlock AI cards and study helpers",
+              "displayName" : "AI Features",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "KI-Karten und Lernhilfen freischalten",
+              "displayName" : "KI-Funktionen",
+              "locale" : "de_DE"
+            }
+          ],
+          "productID" : "flashcards_ai_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "KI-Funktionen Monatlich",
+          "subscriptionGroupID" : "10000001",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}

@@ -12,9 +12,14 @@ import SwiftData
 struct FlashcardsApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            Flashcard.self,
+            Deck.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .private(CloudConfiguration.iCloudContainerIdentifier)
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
