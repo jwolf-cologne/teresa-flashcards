@@ -168,6 +168,10 @@
 "Heute wartet 1 Karte auf dich." = "1 card is waiting for you today.";
 "Heute warten %lld Karten auf dich." = "%lld cards are waiting for you today.";
 "Alles gelernt. Teresa ist bereit für neue Karten." = "All caught up. Teresa is ready for new cards.";
+"Lerne diesen Stapel" = "Study this deck";
+"Heute ist in diesem Stapel nichts fällig." = "Nothing is due in this deck today.";
+"Heute wartet 1 Karte in diesem Stapel." = "1 card is waiting in this deck today.";
+"Heute warten %lld Karten in diesem Stapel." = "%lld cards are waiting in this deck today.";
 "Erstelle deinen ersten Stapel und starte deine Lernrunde." = "Create your first deck and start your study round.";
 "Deine Stapel" = "Your decks";
 "1 Stapel" = "1 deck";

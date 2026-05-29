@@ -433,7 +433,7 @@ struct ContentView: View {
                     }
 
                     HStack(alignment: .firstTextBaseline) {
-                        Text("Ein Stapel")
+                        Text("Stapel")
                             .font(.title2.bold())
 
                         Spacer()
