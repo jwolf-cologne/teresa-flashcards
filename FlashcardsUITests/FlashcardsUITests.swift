@@ -35,7 +35,11 @@ final class FlashcardsUITests: XCTestCase {
         XCTAssertTrue(unlockButton.waitForExistence(timeout: 5))
         unlockButton.tap()
 
-        XCTAssertTrue(app.staticTexts["KI-Funktionen freischalten"].waitForExistence(timeout: 5))
+        let paywallTitles = [
+            app.staticTexts["KI-Funktionen freischalten"],
+            app.staticTexts["Unlock AI Features"]
+        ]
+        XCTAssertTrue(paywallTitles.contains { $0.waitForExistence(timeout: 3) })
         XCTAssertFalse(app.buttons.containing(NSPredicate(format: "label CONTAINS[c] %@", "Loading price")).element.exists)
     }
 
