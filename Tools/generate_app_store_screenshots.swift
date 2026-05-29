@@ -165,27 +165,37 @@ func drawSymbol(_ symbol: String, in rect: CGRect, size: CGFloat, color: NSColor
 }
 
 func drawBackground(canvas: Canvas) {
-    gradient(CGRect(origin: .zero, size: canvas.size), start: color(238, 247, 255), end: color(251, 246, 255), angle: -40)
-    circle(CGRect(x: -canvas.size.width * 0.18, y: canvas.size.height * 0.70, width: canvas.size.width * 0.65, height: canvas.size.width * 0.65), fill: color(41, 151, 255, 0.12))
-    circle(CGRect(x: canvas.size.width * 0.62, y: canvas.size.height * 0.06, width: canvas.size.width * 0.52, height: canvas.size.width * 0.52), fill: color(148, 86, 235, 0.12))
-    circle(CGRect(x: canvas.size.width * 0.54, y: canvas.size.height * 0.78, width: canvas.size.width * 0.38, height: canvas.size.width * 0.38), fill: color(255, 143, 46, 0.10))
+    let rect = CGRect(origin: .zero, size: canvas.size)
+    gradient(rect, start: color(36, 142, 255), end: color(174, 63, 220), angle: -35)
+
+    for index in 0..<9 {
+        let y = CGFloat(index) * canvas.size.height / 8 - canvas.size.height * 0.12
+        let stripe = NSBezierPath()
+        stripe.move(to: CGPoint(x: -canvas.size.width * 0.15, y: y))
+        stripe.line(to: CGPoint(x: canvas.size.width * 1.15, y: y + canvas.size.height * 0.22))
+        color(255, 255, 255, index % 2 == 0 ? 0.08 : 0.045).setStroke()
+        stripe.lineWidth = canvas.isPad ? 42 : 30
+        stripe.stroke()
+    }
+
+    roundedRect(CGRect(x: canvas.size.width * 0.06, y: canvas.size.height * 0.07, width: canvas.size.width * 0.88, height: canvas.size.height * 0.84), radius: canvas.isPad ? 78 : 58, fill: color(255, 255, 255, 0.10), stroke: color(255, 255, 255, 0.18), lineWidth: 2)
 }
 
 func drawHeader(copy: LocaleCopy, screenshot: ScreenshotCopy, canvas: Canvas) {
     let margin: CGFloat = canvas.isPad ? 126 : 78
     let iconSize: CGFloat = canvas.isPad ? 82 : 66
     drawAppIcon(in: CGRect(x: margin, y: canvas.size.height - margin - iconSize, width: iconSize, height: iconSize))
-    drawText(copy.hero, in: CGRect(x: margin + iconSize + 22, y: canvas.size.height - margin - iconSize + 4, width: canvas.size.width - margin * 2 - iconSize - 22, height: 44), size: canvas.isPad ? 34 : 29, weight: .bold)
-    drawText(copy.subhero, in: CGRect(x: margin + iconSize + 22, y: canvas.size.height - margin - iconSize + 45, width: canvas.size.width - margin * 2 - iconSize - 22, height: 34), size: canvas.isPad ? 23 : 20, weight: .medium, color: muted)
+    drawText(copy.hero, in: CGRect(x: margin + iconSize + 22, y: canvas.size.height - margin - iconSize + 4, width: canvas.size.width - margin * 2 - iconSize - 22, height: 44), size: canvas.isPad ? 34 : 29, weight: .bold, color: .white)
+    drawText(copy.subhero, in: CGRect(x: margin + iconSize + 22, y: canvas.size.height - margin - iconSize + 45, width: canvas.size.width - margin * 2 - iconSize - 22, height: 34), size: canvas.isPad ? 23 : 20, weight: .medium, color: color(255, 255, 255, 0.78))
 
-    drawText(screenshot.title, in: CGRect(x: margin, y: canvas.size.height - (canvas.isPad ? 360 : 390), width: canvas.size.width - margin * 2, height: canvas.isPad ? 120 : 150), size: canvas.isPad ? 78 : 72, weight: .heavy, color: ink, lineHeight: canvas.isPad ? 86 : 80)
-    drawText(screenshot.subtitle, in: CGRect(x: margin, y: canvas.size.height - (canvas.isPad ? 465 : 535), width: canvas.size.width - margin * 2, height: canvas.isPad ? 84 : 120), size: canvas.isPad ? 32 : 32, weight: .medium, color: muted, lineHeight: canvas.isPad ? 40 : 40)
+    drawText(screenshot.title, in: CGRect(x: margin, y: canvas.size.height - (canvas.isPad ? 360 : 390), width: canvas.size.width - margin * 2, height: canvas.isPad ? 120 : 150), size: canvas.isPad ? 78 : 72, weight: .heavy, color: .white, lineHeight: canvas.isPad ? 86 : 80)
+    drawText(screenshot.subtitle, in: CGRect(x: margin, y: canvas.size.height - (canvas.isPad ? 465 : 535), width: canvas.size.width - margin * 2, height: canvas.isPad ? 84 : 120), size: canvas.isPad ? 32 : 32, weight: .medium, color: color(255, 255, 255, 0.82), lineHeight: canvas.isPad ? 40 : 40)
 }
 
 func drawDeviceFrame(in rect: CGRect, canvas: Canvas, scene: Scene, copy: LocaleCopy) {
     roundedRect(rect, radius: canvas.isPad ? 54 : 64, fill: color(14, 18, 28), stroke: color(255, 255, 255, 0.45), lineWidth: 2)
     let screen = rect.insetBy(dx: canvas.isPad ? 20 : 16, dy: canvas.isPad ? 20 : 16)
-    roundedRect(screen, radius: canvas.isPad ? 38 : 50, fill: color(246, 248, 252))
+    roundedRect(screen, radius: canvas.isPad ? 38 : 50, fill: .black)
     NSGraphicsContext.current?.saveGraphicsState()
     NSBezierPath(roundedRect: screen, xRadius: canvas.isPad ? 38 : 50, yRadius: canvas.isPad ? 38 : 50).addClip()
     drawMockApp(in: screen, scene: scene, copy: copy, isPad: canvas.isPad)
@@ -193,42 +203,56 @@ func drawDeviceFrame(in rect: CGRect, canvas: Canvas, scene: Scene, copy: Locale
 }
 
 func drawMockApp(in screen: CGRect, scene: Scene, copy: LocaleCopy, isPad: Bool) {
-    gradient(screen, start: color(247, 251, 255), end: color(255, 250, 253), angle: -40)
-    let margin = screen.width * 0.075
-    let top = screen.maxY - screen.height * 0.09
-    circle(CGRect(x: screen.minX + margin, y: top - 34, width: 58, height: 58), fill: color(255, 255, 255, 0.84))
-    drawSymbol("⚙", in: CGRect(x: screen.minX + margin + 7, y: top - 26, width: 44, height: 44), size: 30, color: color(80, 91, 112))
-    drawText(copy.subhero, in: CGRect(x: screen.minX + margin, y: top - 112, width: screen.width - margin * 2, height: 46), size: isPad ? 30 : 25, weight: .bold)
-
     switch scene {
     case .overview:
         drawOverviewScene(in: screen, copy: copy, isPad: isPad)
-    case .decks:
+    case .decks, .study, .ai, .audio:
+        drawAppChrome(in: screen, copy: copy, isPad: isPad)
+        if scene == .decks {
         drawDecksScene(in: screen, copy: copy, isPad: isPad)
-    case .study:
-        drawStudyScene(in: screen, copy: copy, isPad: isPad)
-    case .ai:
-        drawAIScene(in: screen, copy: copy, isPad: isPad)
-    case .audio:
-        drawAudioScene(in: screen, copy: copy, isPad: isPad)
+        } else if scene == .study {
+            drawStudyScene(in: screen, copy: copy, isPad: isPad)
+        } else if scene == .ai {
+            drawAIScene(in: screen, copy: copy, isPad: isPad)
+        } else {
+            drawAudioScene(in: screen, copy: copy, isPad: isPad)
+        }
     }
 }
 
-func drawOverviewScene(in screen: CGRect, copy: LocaleCopy, isPad: Bool) {
+func drawAppChrome(in screen: CGRect, copy: LocaleCopy, isPad: Bool) {
+    roundedRect(screen, radius: 0, fill: .black)
     let margin = screen.width * 0.075
-    let hero = CGRect(x: screen.minX + margin, y: screen.maxY - screen.height * 0.38, width: screen.width - margin * 2, height: screen.height * 0.17)
-    roundedRect(hero, radius: 34, fill: .white, stroke: color(64, 148, 255, 0.22))
-    drawText(copy.deckSubtitle, in: hero.insetBy(dx: 28, dy: 26), size: isPad ? 30 : 24, weight: .bold)
-    drawText("12", in: CGRect(x: hero.minX + 28, y: hero.minY + 34, width: 120, height: 70), size: isPad ? 58 : 48, weight: .heavy, color: orange)
-    drawText(copy.tabs.today, in: CGRect(x: hero.minX + 28, y: hero.minY + 18, width: 170, height: 30), size: isPad ? 21 : 18, weight: .semibold, color: muted)
-    drawSymbol("✦", in: CGRect(x: hero.maxX - 120, y: hero.midY - 42, width: 84, height: 84), size: 70, color: blue)
-    drawDeckGrid(in: CGRect(x: screen.minX + margin, y: screen.minY + screen.height * 0.11, width: screen.width - margin * 2, height: screen.height * 0.39), copy: copy, isPad: isPad)
+    let top = screen.maxY - screen.height * 0.085
+    circle(CGRect(x: screen.minX + margin, y: top - 34, width: 58, height: 58), fill: color(255, 255, 255, 0.10))
+    drawSymbol("⚙", in: CGRect(x: screen.minX + margin + 7, y: top - 26, width: 44, height: 44), size: 30, color: .white)
+    drawText(copy.hero, in: CGRect(x: screen.minX + margin, y: top - 138, width: screen.width - margin * 2, height: 72), size: isPad ? 47 : 42, weight: .heavy, color: .white)
+}
+
+func drawOverviewScene(in screen: CGRect, copy: LocaleCopy, isPad: Bool) {
+    gradient(screen, start: color(78, 145, 232), end: color(177, 64, 214), angle: -20)
+    let margin = screen.width * 0.075
+    drawText(copy.hero, in: CGRect(x: screen.minX + margin, y: screen.maxY - screen.height * 0.26, width: screen.width - margin * 2, height: 130), size: isPad ? 54 : 48, weight: .heavy, color: .white, alignment: .center, lineHeight: isPad ? 62 : 56)
+    drawText(copy.subhero, in: CGRect(x: screen.minX + margin, y: screen.maxY - screen.height * 0.33, width: screen.width - margin * 2, height: 48), size: isPad ? 31 : 27, weight: .semibold, color: color(255, 255, 255, 0.78), alignment: .center)
+    let card = CGRect(x: screen.midX - screen.width * 0.30, y: screen.midY - screen.height * 0.15, width: screen.width * 0.60, height: screen.height * 0.31)
+    let path = NSBezierPath(roundedRect: card, xRadius: 38, yRadius: 38)
+    NSGraphicsContext.current?.saveGraphicsState()
+    var transform = AffineTransform(translationByX: card.midX, byY: card.midY)
+    transform.rotate(byDegrees: -2.0)
+    transform.translate(x: -card.midX, y: -card.midY)
+    path.transform(using: transform)
+    NSColor.white.setFill()
+    path.fill()
+    NSGraphicsContext.current?.restoreGraphicsState()
+    drawSymbol("✦", in: CGRect(x: card.midX - 46, y: card.maxY - 136, width: 92, height: 92), size: 74, color: purple)
+    drawText("Bereit?", in: CGRect(x: card.minX + 38, y: card.midY - 20, width: card.width - 76, height: 64), size: isPad ? 44 : 39, weight: .heavy, color: .black, alignment: .center)
+    drawText("Tippen. Umdrehen. Lernen.", in: CGRect(x: card.minX + 38, y: card.midY - 72, width: card.width - 76, height: 42), size: isPad ? 22 : 19, weight: .bold, color: color(77, 77, 82), alignment: .center)
+    drawText(copy.code == "de" ? "Deine Karten. Dein Tempo." : "Your cards. Your pace.", in: CGRect(x: screen.minX + margin, y: screen.minY + screen.height * 0.18, width: screen.width - margin * 2, height: 48), size: isPad ? 28 : 24, weight: .semibold, color: color(255, 255, 255, 0.76), alignment: .center)
 }
 
 func drawDecksScene(in screen: CGRect, copy: LocaleCopy, isPad: Bool) {
     let margin = screen.width * 0.075
-    drawText(copy.deckTitle, in: CGRect(x: screen.minX + margin, y: screen.maxY - screen.height * 0.25, width: screen.width - margin * 2, height: 45), size: isPad ? 33 : 28, weight: .bold)
-    drawDeckGrid(in: CGRect(x: screen.minX + margin, y: screen.minY + screen.height * 0.16, width: screen.width - margin * 2, height: screen.height * 0.58), copy: copy, isPad: isPad)
+    drawDeckGrid(in: CGRect(x: screen.minX + margin, y: screen.minY + screen.height * 0.14, width: screen.width - margin * 2, height: screen.height * 0.58), copy: copy, isPad: isPad)
 }
 
 func drawDeckGrid(in rect: CGRect, copy: LocaleCopy, isPad: Bool) {
@@ -243,12 +267,16 @@ func drawDeckGrid(in rect: CGRect, copy: LocaleCopy, isPad: Bool) {
         let col = index % columns
         let tile = CGRect(x: rect.minX + CGFloat(col) * (tileW + gap), y: rect.maxY - CGFloat(row + 1) * tileH - CGFloat(row) * gap, width: tileW, height: tileH)
         let deck = decks[index]
-        roundedRect(tile, radius: 24, fill: .white, stroke: deck.2.withAlphaComponent(0.24))
-        circle(CGRect(x: tile.minX + 24, y: tile.maxY - 74, width: 42, height: 42), fill: deck.2.withAlphaComponent(0.16))
-        drawSymbol(index == decks.count - 1 ? "+" : "▰", in: CGRect(x: tile.minX + 24, y: tile.maxY - 72, width: 42, height: 42), size: index == decks.count - 1 ? 34 : 23, color: deck.2)
-        drawText(deck.0, in: CGRect(x: tile.minX + 24, y: tile.minY + 58, width: tile.width - 48, height: 50), size: isPad ? 27 : 23, weight: .bold)
+        roundedRect(tile, radius: 24, fill: color(31, 31, 34), stroke: color(255, 255, 255, 0.05))
+        drawSymbol(index == decks.count - 1 ? "+" : "▰", in: CGRect(x: tile.minX + 24, y: tile.maxY - 74, width: 48, height: 48), size: index == decks.count - 1 ? 38 : 25, color: index == decks.count - 1 ? color(155, 155, 160) : blue)
+        drawText(deck.0, in: CGRect(x: tile.minX + 24, y: tile.minY + 58, width: tile.width - 48, height: 50), size: isPad ? 27 : 23, weight: .bold, color: index == decks.count - 1 ? color(158, 158, 164) : .white)
         if index != decks.count - 1 {
-            drawText("\(deck.1) Karten", in: CGRect(x: tile.minX + 24, y: tile.minY + 28, width: tile.width - 48, height: 30), size: isPad ? 19 : 17, weight: .medium, color: muted)
+            if index == 0 || index == 2 {
+                let badge = CGRect(x: tile.maxX - 72, y: tile.maxY - 70, width: 48, height: 48)
+                circle(badge, fill: orange)
+                drawText(deck.1, in: badge.insetBy(dx: 0, dy: 12), size: isPad ? 19 : 17, weight: .heavy, color: .white, alignment: .center)
+            }
+            drawText("\(deck.1) \(copy.code == "de" ? "Karteikarten" : "cards")", in: CGRect(x: tile.minX + 24, y: tile.minY + 28, width: tile.width - 48, height: 30), size: isPad ? 19 : 17, weight: .medium, color: color(156, 156, 162))
         }
     }
 }
@@ -256,10 +284,10 @@ func drawDeckGrid(in rect: CGRect, copy: LocaleCopy, isPad: Bool) {
 func drawStudyScene(in screen: CGRect, copy: LocaleCopy, isPad: Bool) {
     let margin = screen.width * 0.075
     let card = CGRect(x: screen.minX + margin, y: screen.minY + screen.height * 0.27, width: screen.width - margin * 2, height: screen.height * 0.42)
-    roundedRect(card, radius: 38, fill: .white, stroke: color(64, 148, 255, 0.22))
+    roundedRect(card, radius: 38, fill: color(32, 32, 36), stroke: color(255, 255, 255, 0.08))
     drawSymbol("✦", in: CGRect(x: card.midX - 42, y: card.maxY - 112, width: 84, height: 84), size: 70, color: purple)
-    drawText(copy.cardQuestion, in: CGRect(x: card.minX + 42, y: card.midY + 20, width: card.width - 84, height: 120), size: isPad ? 40 : 34, weight: .heavy, alignment: .center, lineHeight: isPad ? 48 : 42)
-    drawText(copy.cardAnswer, in: CGRect(x: card.minX + 42, y: card.midY - 94, width: card.width - 84, height: 110), size: isPad ? 25 : 22, weight: .medium, color: muted, alignment: .center, lineHeight: 30)
+    drawText(copy.cardQuestion, in: CGRect(x: card.minX + 42, y: card.midY + 20, width: card.width - 84, height: 120), size: isPad ? 40 : 34, weight: .heavy, color: .white, alignment: .center, lineHeight: isPad ? 48 : 42)
+    drawText(copy.cardAnswer, in: CGRect(x: card.minX + 42, y: card.midY - 94, width: card.width - 84, height: 110), size: isPad ? 25 : 22, weight: .medium, color: color(175, 175, 184), alignment: .center, lineHeight: 30)
     let buttonY = screen.minY + screen.height * 0.14
     let bw = (screen.width - margin * 2 - 24) / 3
     for (idx, item) in [("Nochmal", color(236, 82, 82)), ("Unsicher", orange), ("Gewusst", mint)].enumerated() {
@@ -272,7 +300,7 @@ func drawStudyScene(in screen: CGRect, copy: LocaleCopy, isPad: Bool) {
 func drawAIScene(in screen: CGRect, copy: LocaleCopy, isPad: Bool) {
     let margin = screen.width * 0.075
     let panel = CGRect(x: screen.minX + margin, y: screen.minY + screen.height * 0.18, width: screen.width - margin * 2, height: screen.height * 0.56)
-    roundedRect(panel, radius: 34, fill: .white, stroke: color(145, 88, 235, 0.23))
+    roundedRect(panel, radius: 34, fill: color(246, 246, 248), stroke: color(255, 255, 255, 0.20))
     drawSymbol("✦", in: CGRect(x: panel.minX + 34, y: panel.maxY - 112, width: 76, height: 76), size: 66, color: purple)
     drawText(copy.aiTitle, in: CGRect(x: panel.minX + 34, y: panel.maxY - 170, width: panel.width - 68, height: 58), size: isPad ? 39 : 32, weight: .heavy)
     drawText(copy.aiSubtitle, in: CGRect(x: panel.minX + 34, y: panel.maxY - 230, width: panel.width - 68, height: 64), size: isPad ? 24 : 20, weight: .medium, color: muted, lineHeight: 28)
@@ -291,13 +319,13 @@ func drawAIScene(in screen: CGRect, copy: LocaleCopy, isPad: Bool) {
 func drawAudioScene(in screen: CGRect, copy: LocaleCopy, isPad: Bool) {
     let margin = screen.width * 0.075
     let panel = CGRect(x: screen.minX + margin, y: screen.minY + screen.height * 0.20, width: screen.width - margin * 2, height: screen.height * 0.52)
-    roundedRect(panel, radius: 34, fill: .white, stroke: color(38, 190, 145, 0.25))
-    drawText(copy.settings, in: CGRect(x: panel.minX + 34, y: panel.maxY - 78, width: panel.width - 68, height: 42), size: isPad ? 36 : 29, weight: .heavy)
+    roundedRect(panel, radius: 34, fill: color(32, 32, 36), stroke: color(255, 255, 255, 0.08))
+    drawText(copy.settings, in: CGRect(x: panel.minX + 34, y: panel.maxY - 78, width: panel.width - 68, height: 42), size: isPad ? 36 : 29, weight: .heavy, color: .white)
     let rows = [("Deutsch", "de-DE", blue), ("English", "en-US", purple), ("Español", "es-ES", orange), ("Audio", "1.2×", mint)]
     for (index, row) in rows.enumerated() {
         let rect = CGRect(x: panel.minX + 34, y: panel.maxY - 160 - CGFloat(index) * 88, width: panel.width - 68, height: 64)
-        roundedRect(rect, radius: 18, fill: row.2.withAlphaComponent(0.10))
-        drawText(row.0, in: CGRect(x: rect.minX + 20, y: rect.minY + 18, width: rect.width * 0.55, height: 30), size: isPad ? 24 : 20, weight: .bold)
+        roundedRect(rect, radius: 18, fill: color(255, 255, 255, 0.08))
+        drawText(row.0, in: CGRect(x: rect.minX + 20, y: rect.minY + 18, width: rect.width * 0.55, height: 30), size: isPad ? 24 : 20, weight: .bold, color: .white)
         drawText(row.1, in: CGRect(x: rect.midX, y: rect.minY + 18, width: rect.width * 0.42, height: 30), size: isPad ? 22 : 18, weight: .semibold, color: row.2, alignment: .right)
     }
     drawSymbol("▶", in: CGRect(x: panel.midX - 44, y: panel.minY + 48, width: 88, height: 88), size: 72, color: mint)
@@ -357,7 +385,9 @@ extension Scene {
     }
 }
 
-try? FileManager.default.removeItem(at: outputRoot)
+for locale in locales {
+    try? FileManager.default.removeItem(at: outputRoot.appendingPathComponent(locale.code))
+}
 for locale in locales {
     for (index, screenshot) in locale.screenshots.enumerated() {
         try render(copy: locale, screenshot: screenshot, index: index, canvas: iphone)
