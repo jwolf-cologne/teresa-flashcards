@@ -389,7 +389,7 @@ async function callOpenAI({
     body: JSON.stringify({
       model: openAIModel,
       input,
-      reasoning: { effort: "none" },
+      reasoning: { effort: "minimal" },
       text: {
         format: {
           type: "json_schema",
