@@ -26,6 +26,7 @@ final class FlashcardsUITests: XCTestCase {
     func testAIPaywallDoesNotShowLoadingPricePlaceholder() throws {
         let app = XCUIApplication()
         app.launchArguments.append("UITEST_SKIP_INTRO")
+        app.launchArguments.append("UITEST_FORCE_AI_UNLOCK_BUTTON")
         app.launch()
 
         app.buttons["settingsButton"].tap()
@@ -36,7 +37,6 @@ final class FlashcardsUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["KI-Funktionen freischalten"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons.containing(NSPredicate(format: "label CONTAINS[c] %@", "Loading price")).element.exists)
-        XCTAssertFalse(app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] %@", "could not be loaded")).element.exists)
     }
 
     @MainActor

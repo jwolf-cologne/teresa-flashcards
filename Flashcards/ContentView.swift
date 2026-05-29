@@ -1179,6 +1179,7 @@ private struct SpeechSettingsSection: View {
 private struct AISubscriptionSettingsSection: View {
     @ObservedObject var subscriptionManager: AISubscriptionManager
     let onUnlockAI: () -> Void
+    private let forceUnlockButtonForUITests = ProcessInfo.processInfo.arguments.contains("UITEST_FORCE_AI_UNLOCK_BUTTON")
 
     var body: some View {
         Section("KI-Funktionen") {
@@ -1193,7 +1194,7 @@ private struct AISubscriptionSettingsSection: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
 
-            if !subscriptionManager.hasActiveSubscription {
+            if !subscriptionManager.hasActiveSubscription || forceUnlockButtonForUITests {
                 Button {
                     onUnlockAI()
                 } label: {
