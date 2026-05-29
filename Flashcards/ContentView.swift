@@ -398,46 +398,58 @@ struct ContentView: View {
         let futureCardsCount = cards.filter { $0.nextReviewDate > Date() }.count
         let knownCardsCount = cards.filter { $0.timesKnown > 0 }.count
 
-        return VStack(spacing: 0) {
-            studyActionBar(cards: cards, dueCards: dueCards)
+        return ZStack {
+            OverviewBackground()
 
-            List {
-                Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Statistik")
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                            statChip(title: "Gesamt", value: cards.count, systemImage: "square.stack.3d.up", tint: .blue)
-                            statChip(title: "Heute", value: dueCards.count, systemImage: "flame.fill", tint: .orange)
-                            statChip(title: "Später", value: futureCardsCount, systemImage: "calendar", tint: .purple)
-                            statChip(title: "Gewusst", value: knownCardsCount, systemImage: "checkmark.circle.fill", tint: .green)
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
-
-                Section {
-                    NavigationLink(value: NavigationRoute.deckCards(deckName)) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "questionmark.square.fill")
-                                .font(.title3)
-                                .foregroundStyle(.blue)
-                                .frame(width: 28)
-
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Fragen")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    DeckDetailHeroView(
+                        deckName: deckName,
+                        totalCards: cards.count,
+                        dueCards: dueCards.count,
+                        futureCards: futureCardsCount,
+                        knownCards: knownCardsCount
+                    ) {
+                        if let firstDueCard = dueCards.first {
+                            NavigationLink {
+                                StudyCardView(cards: cards, startCard: firstDueCard, speechLanguageCode: firstDueCard.deckName.isEmpty ? DeckLanguage.defaultCode : languageCode(for: firstDueCard.deckName), subscriptionManager: subscriptionManager)
+                            } label: {
+                                Label("Lernen", systemImage: "play.fill")
                                     .font(.headline)
-
-                                Text(localizedCardsInDeckCount(cards.count))
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+                                    .frame(maxWidth: .infinity)
                             }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                            .tint(.orange)
+                            .accessibilityIdentifier("deckDetailStudyButton")
+                        } else {
+                            Label("Nichts fällig", systemImage: "checkmark.circle.fill")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 13)
+                                .foregroundStyle(.green)
+                                .background(.green.opacity(0.12), in: RoundedRectangle(cornerRadius: 16))
                         }
-                        .padding(.vertical, 4)
                     }
+
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("Ein Stapel")
+                            .font(.title2.bold())
+
+                        Spacer()
+
+                        Text(localizedCardsInDeckCount(cards.count))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    NavigationLink(value: NavigationRoute.deckCards(deckName)) {
+                        DeckQuestionsRowView(cardCount: cards.count)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("deckQuestionsRow")
                 }
+                .padding()
             }
         }
         .navigationTitle(deckName)
@@ -933,6 +945,129 @@ private struct DeckOverviewHeroView<LearningAction: View>: View {
         }
 
         return String(format: String(localized: "Heute warten %lld Karten auf dich."), Int64(count))
+    }
+}
+
+private struct DeckDetailHeroView<LearningAction: View>: View {
+    let deckName: String
+    let totalCards: Int
+    let dueCards: Int
+    let futureCards: Int
+    let knownCards: Int
+    @ViewBuilder var learningAction: LearningAction
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(alignment: .top, spacing: 14) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Lerne diesen Stapel")
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.64)
+
+                    Text(dueCards > 0 ? localizedDueMessage(dueCards) : String(localized: "Heute ist in diesem Stapel nichts fällig."))
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 10)
+
+                Image(systemName: "sparkles")
+                    .font(.title2.weight(.bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 46, height: 46)
+                    .background(
+                        LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        in: Circle()
+                    )
+                    .shadow(color: .blue.opacity(0.28), radius: 14, x: 0, y: 8)
+            }
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                LearningMetricView(title: "Heute", value: dueCards, color: .orange, systemImage: "flame.fill")
+                LearningMetricView(title: "Gesamt", value: totalCards, color: .blue, systemImage: "rectangle.stack.fill")
+                LearningMetricView(title: "Später", value: futureCards, color: .purple, systemImage: "calendar")
+                LearningMetricView(title: "Gewusst", value: knownCards, color: .green, systemImage: "checkmark.circle.fill")
+            }
+
+            learningAction
+        }
+        .padding(20)
+        .background {
+            RoundedRectangle(cornerRadius: 26)
+                .fill(.regularMaterial)
+                .overlay(alignment: .topTrailing) {
+                    Circle()
+                        .fill(.orange.opacity(0.18))
+                        .frame(width: 124, height: 124)
+                        .blur(radius: 18)
+                        .offset(x: 30, y: -44)
+                }
+                .overlay(alignment: .bottomLeading) {
+                    Circle()
+                        .fill(.blue.opacity(0.12))
+                        .frame(width: 150, height: 150)
+                        .blur(radius: 24)
+                        .offset(x: -58, y: 48)
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 26)
+                        .stroke(.white.opacity(0.12), lineWidth: 1)
+                }
+        }
+    }
+
+    private func localizedDueMessage(_ count: Int) -> String {
+        if count == 1 {
+            return String(localized: "Heute wartet 1 Karte in diesem Stapel.")
+        }
+
+        return String(format: String(localized: "Heute warten %lld Karten in diesem Stapel."), Int64(count))
+    }
+}
+
+private struct DeckQuestionsRowView: View {
+    let cardCount: Int
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "questionmark.square.fill")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(.white)
+                .frame(width: 44, height: 44)
+                .background(.blue.gradient, in: RoundedRectangle(cornerRadius: 12))
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text("Fragen")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
+                Text(localizedCardsInDeckCount(cardCount))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.tertiary)
+        }
+        .padding(18)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22))
+        .overlay {
+            RoundedRectangle(cornerRadius: 22)
+                .stroke(.white.opacity(0.10), lineWidth: 1)
+        }
+    }
+
+    private func localizedCardsInDeckCount(_ count: Int) -> String {
+        if count == 1 {
+            return String(localized: "1 Karte im Stapel")
+        }
+
+        return String(format: String(localized: "%lld Karten im Stapel"), Int64(count))
     }
 }
 
