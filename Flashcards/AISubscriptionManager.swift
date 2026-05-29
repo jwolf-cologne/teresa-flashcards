@@ -93,6 +93,10 @@ final class AISubscriptionManager: ObservableObject {
             try await AppStore.sync()
             await updateSubscriptionStatus()
             statusMessage = hasActiveSubscription ? String(localized: "Käufe wiederhergestellt.") : String(localized: "Kein aktives KI-Abo gefunden.")
+        } catch StoreKitError.userCancelled {
+            statusMessage = String(localized: "Wiederherstellung abgebrochen.")
+        } catch is CancellationError {
+            statusMessage = String(localized: "Wiederherstellung abgebrochen.")
         } catch {
             statusMessage = String(localized: "Käufe konnten nicht wiederhergestellt werden: \(error.localizedDescription)")
         }

@@ -96,6 +96,7 @@
 "Der Kauf konnte nicht abgeschlossen werden: %@" = "The purchase could not be completed: %@";
 "Käufe wiederhergestellt." = "Purchases restored.";
 "Kein aktives KI-Abo gefunden." = "No active AI subscription found.";
+"Wiederherstellung abgebrochen." = "Restore cancelled.";
 "Käufe konnten nicht wiederhergestellt werden: %@" = "Purchases could not be restored: %@";
 "Store-Produkte konnten nicht geladen werden: %@" = "Store products could not be loaded: %@";
 "Ein Store-Update konnte nicht geprüft werden." = "A Store update could not be verified.";
