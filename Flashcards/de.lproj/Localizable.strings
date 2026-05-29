@@ -60,6 +60,7 @@
 "Die KI hat keine Karten erzeugt." = "Die KI hat keine Karten erzeugt.";
 "Der KI-Endpunkt ist nicht konfiguriert." = "Der KI-Endpunkt ist nicht konfiguriert.";
 "Für KI-Funktionen ist ein aktives Abo erforderlich." = "Für KI-Funktionen ist ein aktives Abo erforderlich.";
+"Der Kaufnachweis konnte bei Apple nicht geprüft werden. Lokale Xcode-StoreKit-Käufe funktionieren nur für den Kaufdialog; teste die echte KI-Freischaltung über Sandbox oder TestFlight." = "Der Kaufnachweis konnte bei Apple nicht geprüft werden. Lokale Xcode-StoreKit-Käufe funktionieren nur für den Kaufdialog; teste die echte KI-Freischaltung über Sandbox oder TestFlight.";
 "Die KI-Antwort konnte nicht gelesen werden." = "Die KI-Antwort konnte nicht gelesen werden.";
 "Die KI hat kein passendes Kartenformat zurückgegeben." = "Die KI hat kein passendes Kartenformat zurückgegeben.";
 "Die KI hat keine nutzbare Antwort geliefert." = "Die KI hat keine nutzbare Antwort geliefert.";

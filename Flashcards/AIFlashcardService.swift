@@ -308,7 +308,7 @@ enum AIFlashcardError: LocalizedError {
         case .serverError(let statusCode, let message):
             if let message, !message.isEmpty {
                 if statusCode == 402 || statusCode == 403 {
-                    return message
+                    return Self.localizedServerAccessMessage(message)
                 }
 
                 return String(localized: "Der KI-Endpunkt meldet Fehler \(statusCode): \(message)")
@@ -316,5 +316,16 @@ enum AIFlashcardError: LocalizedError {
 
             return String(localized: "Der KI-Endpunkt meldet Fehler \(statusCode).")
         }
+    }
+
+    private static func localizedServerAccessMessage(_ message: String) -> String {
+        let normalizedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if normalizedMessage.localizedCaseInsensitiveContains("Kaufnachweis"),
+           normalizedMessage.localizedCaseInsensitiveContains("StoreKit") {
+            return String(localized: "Der Kaufnachweis konnte bei Apple nicht geprüft werden. Lokale Xcode-StoreKit-Käufe funktionieren nur für den Kaufdialog; teste die echte KI-Freischaltung über Sandbox oder TestFlight.")
+        }
+
+        return normalizedMessage
     }
 }

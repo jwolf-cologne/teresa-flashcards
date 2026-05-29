@@ -61,6 +61,7 @@
 "Die KI hat keine Karten erzeugt." = "AI did not create any cards.";
 "Der KI-Endpunkt ist nicht konfiguriert." = "The AI endpoint is not configured.";
 "Für KI-Funktionen ist ein aktives Abo erforderlich." = "An active subscription is required for AI features.";
+"Der Kaufnachweis konnte bei Apple nicht geprüft werden. Lokale Xcode-StoreKit-Käufe funktionieren nur für den Kaufdialog; teste die echte KI-Freischaltung über Sandbox oder TestFlight." = "The purchase proof could not be verified with Apple. Local Xcode StoreKit purchases only work for the purchase dialog; test the real AI unlock through Sandbox or TestFlight.";
 "Die KI-Antwort konnte nicht gelesen werden." = "The AI response could not be read.";
 "Die KI hat kein passendes Kartenformat zurückgegeben." = "AI did not return a valid card format.";
 "Die KI hat keine nutzbare Antwort geliefert." = "AI did not return a usable answer.";
