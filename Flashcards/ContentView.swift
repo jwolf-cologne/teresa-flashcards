@@ -1254,15 +1254,34 @@ private struct AIPaywallView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                ProductView(id: AISubscriptionManager.monthlyProductID, prefersPromotionalIcon: false)
-                    .productViewStyle(.large)
-                    .accessibilityIdentifier("aiSubscriptionProductView")
-                    .onInAppPurchaseCompletion { _, _ in
-                        await subscriptionManager.refresh()
+                Button {
+                    Task {
+                        if subscriptionManager.monthlyProduct == nil {
+                            await subscriptionManager.refresh()
+                        } else {
+                            await subscriptionManager.purchaseMonthlySubscription()
+                        }
+
                         if subscriptionManager.hasActiveSubscription {
                             dismiss()
                         }
                     }
+                } label: {
+                    HStack {
+                        if subscriptionManager.isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        }
+
+                        Text(subscriptionManager.monthlyProduct == nil ? String(localized: "KI-Abo laden") : String(format: String(localized: "Für %@ pro Monat aktivieren"), subscriptionManager.monthlyPriceText))
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(subscriptionManager.isLoading)
+                .accessibilityIdentifier("aiSubscriptionPurchaseButton")
 
                 Button("Käufe wiederherstellen") {
                     Task {

@@ -168,8 +168,10 @@ struct FlashcardsTests {
         let contentViewURL = projectFile(named: "ContentView.swift")
         let source = try String(contentsOf: contentViewURL, encoding: .utf8)
 
-        #expect(!source.contains("Für \\(subscriptionManager.monthlyPriceText) pro Monat aktivieren"))
-        #expect(source.contains("ProductView(id: AISubscriptionManager.monthlyProductID"))
+        #expect(!source.contains("ProductView(id: AISubscriptionManager.monthlyProductID"))
+        #expect(source.contains("aiSubscriptionPurchaseButton"))
+        #expect(source.contains("KI-Abo laden"))
+        #expect(source.contains("purchaseMonthlySubscription()"))
     }
 
     @Test func releaseBuildDoesNotExposeDangerousDemoDeleteButton() throws {
