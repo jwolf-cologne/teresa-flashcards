@@ -10,6 +10,7 @@ import SwiftData
 import CloudKit
 import AVFoundation
 import Combine
+import StoreKit
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -1236,28 +1237,14 @@ private struct AIPaywallView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Button {
-                    Task {
-                        await subscriptionManager.purchaseMonthlySubscription()
+                ProductView(id: AISubscriptionManager.monthlyProductID, prefersPromotionalIcon: false)
+                    .productViewStyle(.large)
+                    .onInAppPurchaseCompletion { _, _ in
+                        await subscriptionManager.refresh()
                         if subscriptionManager.hasActiveSubscription {
                             dismiss()
                         }
                     }
-                } label: {
-                    if subscriptionManager.isLoading {
-                        ProgressView()
-                            .frame(maxWidth: .infinity)
-                    } else if subscriptionManager.monthlyProduct == nil {
-                        Text("KI-Abo laden")
-                            .frame(maxWidth: .infinity)
-                    } else {
-                        Text(String(format: String(localized: "Für %@ pro Monat aktivieren"), subscriptionManager.monthlyPriceText))
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .disabled(subscriptionManager.isLoading)
 
                 Button("Käufe wiederherstellen") {
                     Task {
