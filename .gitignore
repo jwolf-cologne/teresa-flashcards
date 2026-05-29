@@ -10,6 +10,9 @@ DerivedData/
 build/
 *.xcarchive
 
+# Locally packaged App Store upload bundles
+AppStoreScreenshots/*.zip
+
 # Swift Package Manager
 .build/
 .swiftpm/
