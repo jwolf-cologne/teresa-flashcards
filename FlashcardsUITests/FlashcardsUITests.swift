@@ -23,14 +23,20 @@ final class FlashcardsUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testAIPaywallDoesNotShowLoadingPricePlaceholder() throws {
         let app = XCUIApplication()
+        app.launchArguments.append("UITEST_SKIP_INTRO")
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // XCUIAutomation Documentation
-        // https://developer.apple.com/documentation/xcuiautomation
+        app.buttons["settingsButton"].tap()
+
+        let unlockButton = app.buttons["unlockAIButton"]
+        XCTAssertTrue(unlockButton.waitForExistence(timeout: 5))
+        unlockButton.tap()
+
+        XCTAssertTrue(app.staticTexts["KI-Funktionen freischalten"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons.containing(NSPredicate(format: "label CONTAINS[c] %@", "Loading price")).element.exists)
+        XCTAssertFalse(app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] %@", "could not be loaded")).element.exists)
     }
 
     @MainActor

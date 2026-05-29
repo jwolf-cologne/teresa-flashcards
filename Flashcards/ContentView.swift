@@ -38,7 +38,7 @@ struct ContentView: View {
     @AppStorage("knownReviewDays") private var knownReviewDays = 7
     @AppStorage("unsureReviewDays") private var unsureReviewDays = 1
     @AppStorage("againReviewDays") private var againReviewDays = 0
-    @State private var showIntro = true
+    @State private var showIntro = !ProcessInfo.processInfo.arguments.contains("UITEST_SKIP_INTRO")
 
     private var deckNames: [String] {
         let names = Set(flashcards.map { $0.deckName } + decks.map { $0.name })
@@ -87,6 +87,7 @@ struct ContentView: View {
                         } label: {
                             Label("Einstellungen", systemImage: "gearshape")
                         }
+                        .accessibilityIdentifier("settingsButton")
                     }
                 }
                 .navigationDestination(for: NavigationRoute.self) { route in
@@ -106,6 +107,7 @@ struct ContentView: View {
                             .onChange(of: newQuestion) { _, value in
                                 newQuestion = FlashcardTextLimits.limited(value, to: FlashcardTextLimits.question)
                             }
+                            .accessibilityIdentifier("newCardQuestionField")
                     }
 
                     Section("Antwort") {
@@ -113,10 +115,12 @@ struct ContentView: View {
                             .onChange(of: newAnswer) { _, value in
                                 newAnswer = FlashcardTextLimits.limited(value, to: FlashcardTextLimits.answer)
                             }
+                            .accessibilityIdentifier("newCardAnswerField")
                     }
 
                     Section("Stapel") {
                         TextField("z. B. Englisch, Mathe, Bio", text: $newDeckName)
+                            .accessibilityIdentifier("newCardDeckField")
                     }
                 }
                 .navigationTitle("Neue Karte")
@@ -143,6 +147,7 @@ struct ContentView: View {
                 Form {
                     Section("Stapel") {
                         TextField("z. B. Mathe, Englisch, Bio", text: $newDeckOnlyName)
+                            .accessibilityIdentifier("newDeckNameField")
 
                         Picker("Sprache", selection: $newDeckLanguageCode) {
                             Text("Bitte auswählen").tag("")
@@ -151,6 +156,7 @@ struct ContentView: View {
                                 Text(LocalizedStringKey(language.name)).tag(language.code)
                             }
                         }
+                        .accessibilityIdentifier("newDeckLanguagePicker")
                     }
                 }
                 .navigationTitle("Neuer Stapel")
@@ -178,6 +184,7 @@ struct ContentView: View {
                 Form {
                     Section("Stapel") {
                         TextField("Titel", text: $editedDeckName)
+                            .accessibilityIdentifier("editDeckNameField")
 
                         Picker("Sprache", selection: $editedDeckLanguageCode) {
                             Text("Bitte auswählen").tag("")
@@ -186,6 +193,7 @@ struct ContentView: View {
                                 Text(LocalizedStringKey(language.name)).tag(language.code)
                             }
                         }
+                        .accessibilityIdentifier("editDeckLanguagePicker")
                     }
                 }
                 .navigationTitle("Stapel bearbeiten")
@@ -336,6 +344,7 @@ struct ContentView: View {
                                 DeckTileView(deckName: deckName, cardCount: cards.count, dueCount: cards.filter { $0.nextReviewDate <= Date() }.count, accent: DeckTileStyle.accent(for: index))
                             }
                             .buttonStyle(.plain)
+                            .accessibilityIdentifier("deckTile_\(deckName)")
                         }
 
                         Button {
@@ -345,6 +354,7 @@ struct ContentView: View {
                             AddDeckTileView()
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("addDeckButton")
                     }
                 }
                 .padding()
@@ -373,6 +383,7 @@ struct ContentView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
+                    .accessibilityIdentifier("addDeckButton")
                 }
                 .padding(28)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24))
@@ -439,6 +450,7 @@ struct ContentView: View {
                 } label: {
                     Label("Stapel bearbeiten", systemImage: "pencil")
                 }
+                .accessibilityIdentifier("editDeckButton")
             }
 
             ToolbarItem {
@@ -447,6 +459,7 @@ struct ContentView: View {
                 } label: {
                     Label("Stapel löschen", systemImage: "trash")
                 }
+                .accessibilityIdentifier("deleteDeckButton")
             }
         }
     }
@@ -488,6 +501,7 @@ struct ContentView: View {
                 } label: {
                     Label("KI-Karten", systemImage: "sparkles")
                 }
+                .accessibilityIdentifier("questionsListAIButton")
             }
 
             ToolbarItem {
@@ -498,6 +512,7 @@ struct ContentView: View {
                 } label: {
                     Label("Neue Karte", systemImage: "plus")
                 }
+                .accessibilityIdentifier("questionsListAddCardButton")
             }
         }
     }
@@ -1184,6 +1199,7 @@ private struct AISubscriptionSettingsSection: View {
                 } label: {
                     Label("KI freischalten", systemImage: "sparkles")
                 }
+                .accessibilityIdentifier("unlockAIButton")
             }
 
             Button("Käufe wiederherstellen") {
@@ -1239,6 +1255,7 @@ private struct AIPaywallView: View {
 
                 ProductView(id: AISubscriptionManager.monthlyProductID, prefersPromotionalIcon: false)
                     .productViewStyle(.large)
+                    .accessibilityIdentifier("aiSubscriptionProductView")
                     .onInAppPurchaseCompletion { _, _ in
                         await subscriptionManager.refresh()
                         if subscriptionManager.hasActiveSubscription {
