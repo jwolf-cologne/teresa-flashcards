@@ -27,6 +27,14 @@
 "Später" = "Later";
 "Gewusst" = "Known";
 "Fragen" = "Questions";
+"Alle" = "All";
+"Gekonnt" = "Known";
+"Filter" = "Filter";
+"Sortieren" = "Sort";
+"Fällig zuerst" = "Due first";
+"Unsichere zuerst" = "Uncertain first";
+"Gekonnte zuletzt" = "Known last";
+"Neueste zuerst" = "Newest first";
 "1 Karte im Stapel" = "1 card in deck";
 "%lld Karten im Stapel" = "%lld cards in deck";
 "Stapel löschen" = "Delete deck";

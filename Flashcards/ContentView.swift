@@ -35,6 +35,8 @@ struct ContentView: View {
     @State private var showingAIPaywall = false
     @State private var showingSettingsAIPaywall = false
     @State private var demoCardsCreatedMessage: String?
+    @State private var questionListFilter = QuestionListFilter.all
+    @State private var questionListSort = QuestionListSort.dueFirst
     @AppStorage("knownReviewDays") private var knownReviewDays = 7
     @AppStorage("unsureReviewDays") private var unsureReviewDays = 1
     @AppStorage("againReviewDays") private var againReviewDays = 0
@@ -478,26 +480,42 @@ struct ContentView: View {
 
     private func deckCardsListView(deckName: String) -> some View {
         let cards = sortedFlashcards(in: deckName)
+        let visibleCards = questionListSort.sort(questionListFilter.filter(cards))
 
         return List {
             Section {
-                ForEach(cards) { card in
+                VStack(alignment: .leading, spacing: 12) {
+                    Picker("Filter", selection: $questionListFilter) {
+                        ForEach(QuestionListFilter.allCases) { filter in
+                            Text(filter.title).tag(filter)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    Menu {
+                        Picker("Sortieren", selection: $questionListSort) {
+                            ForEach(QuestionListSort.allCases) { sort in
+                                Label(sort.title, systemImage: sort.systemImage).tag(sort)
+                            }
+                        }
+                    } label: {
+                        Label(questionListSort.title, systemImage: "arrow.up.arrow.down")
+                            .font(.caption.weight(.semibold))
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
+            Section {
+                ForEach(visibleCards) { card in
                     NavigationLink {
                         StudyCardView(cards: cards, startCard: card, speechLanguageCode: languageCode(for: deckName), subscriptionManager: subscriptionManager)
                     } label: {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(card.question)
-                                .font(.headline)
-
-                            Text(card.reviewStatusText)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.vertical, 4)
+                        FlashcardQuestionRowView(card: card)
                     }
                 }
                 .onDelete { offsets in
-                    deleteCards(cards, offsets: offsets)
+                    deleteCards(visibleCards, offsets: offsets)
                 }
             }
         }
@@ -855,6 +873,148 @@ private struct AIDeckSelection: Identifiable {
     let deckName: String
 }
 
+private enum QuestionListFilter: String, CaseIterable, Identifiable {
+    case all
+    case due
+    case uncertain
+    case known
+
+    var id: String { rawValue }
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .all:
+            return "Alle"
+        case .due:
+            return "Heute"
+        case .uncertain:
+            return "Unsicher"
+        case .known:
+            return "Gekonnt"
+        }
+    }
+
+    func filter(_ cards: [Flashcard]) -> [Flashcard] {
+        switch self {
+        case .all:
+            return cards
+        case .due:
+            return cards.filter { $0.nextReviewDate <= Date() }
+        case .uncertain:
+            return cards.filter { $0.learningStatus == .uncertain }
+        case .known:
+            return cards.filter { $0.learningStatus == .known }
+        }
+    }
+}
+
+private enum QuestionListSort: String, CaseIterable, Identifiable {
+    case dueFirst
+    case uncertainFirst
+    case knownLast
+    case newestFirst
+
+    var id: String { rawValue }
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .dueFirst:
+            return "Fällig zuerst"
+        case .uncertainFirst:
+            return "Unsichere zuerst"
+        case .knownLast:
+            return "Gekonnte zuletzt"
+        case .newestFirst:
+            return "Neueste zuerst"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .dueFirst:
+            return "calendar.badge.clock"
+        case .uncertainFirst:
+            return "questionmark.circle"
+        case .knownLast:
+            return "checkmark.circle"
+        case .newestFirst:
+            return "clock"
+        }
+    }
+
+    func sort(_ cards: [Flashcard]) -> [Flashcard] {
+        cards.sorted { lhs, rhs in
+            switch self {
+            case .dueFirst:
+                if lhs.nextReviewDate == rhs.nextReviewDate {
+                    return lhs.question < rhs.question
+                }
+                return lhs.nextReviewDate < rhs.nextReviewDate
+            case .uncertainFirst:
+                let lhsScore = lhs.timesAgain + lhs.timesUnsure
+                let rhsScore = rhs.timesAgain + rhs.timesUnsure
+                if lhsScore == rhsScore {
+                    return lhs.nextReviewDate < rhs.nextReviewDate
+                }
+                return lhsScore > rhsScore
+            case .knownLast:
+                if lhs.timesKnown == rhs.timesKnown {
+                    return lhs.nextReviewDate < rhs.nextReviewDate
+                }
+                return lhs.timesKnown < rhs.timesKnown
+            case .newestFirst:
+                return lhs.createdAt > rhs.createdAt
+            }
+        }
+    }
+}
+
+private enum FlashcardLearningStatus {
+    case due
+    case uncertain
+    case known
+    case later
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .due:
+            return "Heute"
+        case .uncertain:
+            return "Unsicher"
+        case .known:
+            return "Gekonnt"
+        case .later:
+            return "Später"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .due:
+            return "flame.fill"
+        case .uncertain:
+            return "questionmark.circle.fill"
+        case .known:
+            return "checkmark.circle.fill"
+        case .later:
+            return "calendar"
+        }
+    }
+
+    var tint: Color {
+        switch self {
+        case .due:
+            return .orange
+        case .uncertain:
+            return .yellow
+        case .known:
+            return .green
+        case .later:
+            return .purple
+        }
+    }
+}
+
 private struct OverviewBackground: View {
     @Environment(\.colorScheme) private var colorScheme
 
@@ -1068,6 +1228,45 @@ private struct DeckQuestionsRowView: View {
         }
 
         return String(format: String(localized: "%lld Karten im Stapel"), Int64(count))
+    }
+}
+
+private struct FlashcardQuestionRowView: View {
+    let card: Flashcard
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(card.question)
+                .font(.headline)
+                .lineLimit(2)
+
+            HStack(spacing: 8) {
+                FlashcardStatusPill(status: card.learningStatus)
+
+                Text(card.reviewStatusText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+private struct FlashcardStatusPill: View {
+    let status: FlashcardLearningStatus
+
+    var body: some View {
+        Label {
+            Text(status.title)
+        } icon: {
+            Image(systemName: status.systemImage)
+        }
+        .font(.caption2.weight(.bold))
+        .foregroundStyle(status.tint)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(status.tint.opacity(0.13), in: Capsule())
     }
 }
 
@@ -2138,6 +2337,22 @@ private enum SyncStatus {
 }
 
 extension Flashcard {
+    fileprivate var learningStatus: FlashcardLearningStatus {
+        if nextReviewDate <= Date() {
+            return .due
+        }
+
+        if timesAgain + timesUnsure > timesKnown {
+            return .uncertain
+        }
+
+        if timesKnown > 0 {
+            return .known
+        }
+
+        return .later
+    }
+
     var reviewStatusText: String {
         if nextReviewDate <= Date() {
             return String(localized: "Heute fällig")

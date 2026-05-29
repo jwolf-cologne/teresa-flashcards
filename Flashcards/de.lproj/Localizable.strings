@@ -27,6 +27,14 @@
 "Später" = "Später";
 "Gewusst" = "Gewusst";
 "Fragen" = "Fragen";
+"Alle" = "Alle";
+"Gekonnt" = "Gekonnt";
+"Filter" = "Filter";
+"Sortieren" = "Sortieren";
+"Fällig zuerst" = "Fällig zuerst";
+"Unsichere zuerst" = "Unsichere zuerst";
+"Gekonnte zuletzt" = "Gekonnte zuletzt";
+"Neueste zuerst" = "Neueste zuerst";
 "1 Karte im Stapel" = "1 Karte im Stapel";
 "%lld Karten im Stapel" = "%lld Karten im Stapel";
 "Stapel löschen" = "Stapel löschen";
