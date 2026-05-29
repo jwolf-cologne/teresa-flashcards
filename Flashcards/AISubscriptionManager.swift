@@ -20,6 +20,7 @@ final class AISubscriptionManager: ObservableObject {
     @Published private(set) var storeKitDebugInfo: String?
     @Published var statusMessage: String?
 
+    private var productLoadAttempt = 0
     private var updatesTask: Task<Void, Never>?
 
     var monthlyProduct: Product? {
@@ -30,13 +31,7 @@ final class AISubscriptionManager: ObservableObject {
         monthlyProduct?.displayPrice ?? String(localized: "Preis wird geladen")
     }
 
-    var shouldExposeStoreKitDebugInfo: Bool {
-        #if DEBUG
-        true
-        #else
-        Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
-        #endif
-    }
+    var shouldExposeStoreKitDebugInfo: Bool { true }
 
     init() {
         updatesTask = listenForTransactions()
@@ -112,30 +107,37 @@ final class AISubscriptionManager: ObservableObject {
     }
 
     private func loadProducts() async {
+        productLoadAttempt += 1
+
         do {
             products = try await Product.products(for: [Self.monthlyProductID])
             if products.isEmpty {
                 statusMessage = String(localized: "Das KI-Abo konnte gerade nicht geladen werden. In TestFlight kann das einige Minuten nach dem Upload dauern.")
-                storeKitDebugInfo = await makeStoreKitDebugInfo(result: String(localized: "0 Produkte zurückgegeben"))
+                storeKitDebugInfo = await makeStoreKitDebugInfo(result: String(localized: "0 Produkte zurückgegeben"), attempt: productLoadAttempt)
             } else {
                 storeKitDebugInfo = nil
             }
         } catch {
             products = []
             statusMessage = String(localized: "Store-Produkte konnten nicht geladen werden: \(error.localizedDescription)")
-            storeKitDebugInfo = await makeStoreKitDebugInfo(result: error.localizedDescription)
+            storeKitDebugInfo = await makeStoreKitDebugInfo(result: error.localizedDescription, attempt: productLoadAttempt)
         }
     }
 
-    private func makeStoreKitDebugInfo(result: String) async -> String {
+    private func makeStoreKitDebugInfo(result: String, attempt: Int) async -> String {
         let bundleID = Bundle.main.bundleIdentifier ?? String(localized: "unbekannt")
         let storefront = await Storefront.current?.countryCode ?? String(localized: "unbekannt")
+        let receipt = Bundle.main.appStoreReceiptURL?.lastPathComponent ?? String(localized: "unbekannt")
+        let time = Date().formatted(date: .omitted, time: .standard)
 
         return String(
-            format: String(localized: "StoreKit-Debug: Product-ID %@, Bundle %@, Storefront %@, Ergebnis %@."),
+            format: String(localized: "StoreKit-Debug: Versuch %lld um %@, Product-ID %@, Bundle %@, Storefront %@, Receipt %@, Ergebnis %@."),
+            attempt,
+            time,
             Self.monthlyProductID,
             bundleID,
             storefront,
+            receipt,
             result
         )
     }

@@ -102,6 +102,7 @@
 "0 Produkte zurückgegeben" = "0 Produkte zurückgegeben";
 "unbekannt" = "unbekannt";
 "StoreKit-Debug: Product-ID %@, Bundle %@, Storefront %@, Ergebnis %@." = "StoreKit-Debug: Product-ID %@, Bundle %@, Storefront %@, Ergebnis %@.";
+"StoreKit-Debug: Versuch %lld um %@, Product-ID %@, Bundle %@, Storefront %@, Receipt %@, Ergebnis %@." = "StoreKit-Debug: Versuch %lld um %@, Product-ID %@, Bundle %@, Storefront %@, Receipt %@, Ergebnis %@.";
 "Ein Store-Update konnte nicht geprüft werden." = "Ein Store-Update konnte nicht geprüft werden.";
 "Der Kauf konnte nicht verifiziert werden." = "Der Kauf konnte nicht verifiziert werden.";
 "KI-Funktionen freischalten" = "KI-Funktionen freischalten";

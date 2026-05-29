@@ -181,7 +181,8 @@ struct FlashcardsTests {
         #expect(source.contains("storeKitDebugInfo"))
         #expect(source.contains("Storefront.current"))
         #expect(source.contains("Product-ID %@"))
-        #expect(source.contains("sandboxReceipt"))
+        #expect(source.contains("productLoadAttempt"))
+        #expect(source.contains("appStoreReceiptURL"))
     }
 
     @Test func releaseBuildDoesNotExposeDangerousDemoDeleteButton() throws {

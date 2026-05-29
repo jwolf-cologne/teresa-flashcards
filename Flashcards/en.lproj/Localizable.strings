@@ -103,6 +103,7 @@
 "0 Produkte zurückgegeben" = "0 products returned";
 "unbekannt" = "unknown";
 "StoreKit-Debug: Product-ID %@, Bundle %@, Storefront %@, Ergebnis %@." = "StoreKit debug: Product ID %@, bundle %@, storefront %@, result %@.";
+"StoreKit-Debug: Versuch %lld um %@, Product-ID %@, Bundle %@, Storefront %@, Receipt %@, Ergebnis %@." = "StoreKit debug: attempt %lld at %@, product ID %@, bundle %@, storefront %@, receipt %@, result %@.";
 "Ein Store-Update konnte nicht geprüft werden." = "A Store update could not be verified.";
 "Der Kauf konnte nicht verifiziert werden." = "The purchase could not be verified.";
 "KI-Funktionen freischalten" = "Unlock AI Features";
