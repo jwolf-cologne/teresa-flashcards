@@ -100,6 +100,9 @@
 "Wiederherstellung abgebrochen." = "Restore cancelled.";
 "Käufe konnten nicht wiederhergestellt werden: %@" = "Purchases could not be restored: %@";
 "Store-Produkte konnten nicht geladen werden: %@" = "Store products could not be loaded: %@";
+"0 Produkte zurückgegeben" = "0 products returned";
+"unbekannt" = "unknown";
+"StoreKit-Debug: Product-ID %@, Bundle %@, Storefront %@, Ergebnis %@." = "StoreKit debug: Product ID %@, bundle %@, storefront %@, result %@.";
 "Ein Store-Update konnte nicht geprüft werden." = "A Store update could not be verified.";
 "Der Kauf konnte nicht verifiziert werden." = "The purchase could not be verified.";
 "KI-Funktionen freischalten" = "Unlock AI Features";

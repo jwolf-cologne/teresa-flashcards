@@ -1215,6 +1215,14 @@ private struct AISubscriptionSettingsSection: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+
+            if subscriptionManager.shouldExposeStoreKitDebugInfo,
+               let debugInfo = subscriptionManager.storeKitDebugInfo {
+                Text(debugInfo)
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+            }
         }
     }
 }
@@ -1252,6 +1260,14 @@ private struct AIPaywallView: View {
                     Text(statusMessage)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                }
+
+                if subscriptionManager.shouldExposeStoreKitDebugInfo,
+                   let debugInfo = subscriptionManager.storeKitDebugInfo {
+                    Text(debugInfo)
+                        .font(.caption2.monospaced())
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
                 }
 
                 Button {

@@ -17,6 +17,7 @@ final class AISubscriptionManager: ObservableObject {
     @Published private(set) var hasActiveSubscription = false
     @Published private(set) var currentEntitlementJWS: String?
     @Published private(set) var isLoading = false
+    @Published private(set) var storeKitDebugInfo: String?
     @Published var statusMessage: String?
 
     private var updatesTask: Task<Void, Never>?
@@ -27,6 +28,14 @@ final class AISubscriptionManager: ObservableObject {
 
     var monthlyPriceText: String {
         monthlyProduct?.displayPrice ?? String(localized: "Preis wird geladen")
+    }
+
+    var shouldExposeStoreKitDebugInfo: Bool {
+        #if DEBUG
+        true
+        #else
+        Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
+        #endif
     }
 
     init() {
@@ -107,11 +116,28 @@ final class AISubscriptionManager: ObservableObject {
             products = try await Product.products(for: [Self.monthlyProductID])
             if products.isEmpty {
                 statusMessage = String(localized: "Das KI-Abo konnte gerade nicht geladen werden. In TestFlight kann das einige Minuten nach dem Upload dauern.")
+                storeKitDebugInfo = await makeStoreKitDebugInfo(result: String(localized: "0 Produkte zurückgegeben"))
+            } else {
+                storeKitDebugInfo = nil
             }
         } catch {
             products = []
             statusMessage = String(localized: "Store-Produkte konnten nicht geladen werden: \(error.localizedDescription)")
+            storeKitDebugInfo = await makeStoreKitDebugInfo(result: error.localizedDescription)
         }
+    }
+
+    private func makeStoreKitDebugInfo(result: String) async -> String {
+        let bundleID = Bundle.main.bundleIdentifier ?? String(localized: "unbekannt")
+        let storefront = await Storefront.current?.countryCode ?? String(localized: "unbekannt")
+
+        return String(
+            format: String(localized: "StoreKit-Debug: Product-ID %@, Bundle %@, Storefront %@, Ergebnis %@."),
+            Self.monthlyProductID,
+            bundleID,
+            storefront,
+            result
+        )
     }
 
     private func updateSubscriptionStatus() async {

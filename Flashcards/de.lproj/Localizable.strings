@@ -99,6 +99,9 @@
 "Wiederherstellung abgebrochen." = "Wiederherstellung abgebrochen.";
 "Käufe konnten nicht wiederhergestellt werden: %@" = "Käufe konnten nicht wiederhergestellt werden: %@";
 "Store-Produkte konnten nicht geladen werden: %@" = "Store-Produkte konnten nicht geladen werden: %@";
+"0 Produkte zurückgegeben" = "0 Produkte zurückgegeben";
+"unbekannt" = "unbekannt";
+"StoreKit-Debug: Product-ID %@, Bundle %@, Storefront %@, Ergebnis %@." = "StoreKit-Debug: Product-ID %@, Bundle %@, Storefront %@, Ergebnis %@.";
 "Ein Store-Update konnte nicht geprüft werden." = "Ein Store-Update konnte nicht geprüft werden.";
 "Der Kauf konnte nicht verifiziert werden." = "Der Kauf konnte nicht verifiziert werden.";
 "KI-Funktionen freischalten" = "KI-Funktionen freischalten";

@@ -174,6 +174,16 @@ struct FlashcardsTests {
         #expect(source.contains("purchaseMonthlySubscription()"))
     }
 
+    @Test func subscriptionManagerKeepsStoreKitDiagnosticsForSandbox() throws {
+        let managerURL = projectFile(named: "AISubscriptionManager.swift")
+        let source = try String(contentsOf: managerURL, encoding: .utf8)
+
+        #expect(source.contains("storeKitDebugInfo"))
+        #expect(source.contains("Storefront.current"))
+        #expect(source.contains("Product-ID %@"))
+        #expect(source.contains("sandboxReceipt"))
+    }
+
     @Test func releaseBuildDoesNotExposeDangerousDemoDeleteButton() throws {
         let contentViewURL = projectFile(named: "ContentView.swift")
         let source = try String(contentsOf: contentViewURL, encoding: .utf8)
