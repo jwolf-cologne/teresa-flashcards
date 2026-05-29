@@ -49,10 +49,10 @@ let locales = [
         subhero: "Lerne mit Teresa",
         screenshots: [
             ScreenshotCopy(title: "Lerne mit Teresa", subtitle: "Deine Karten. Dein Tempo. Jeden Tag ein bisschen weiter.", scene: .overview),
-            ScreenshotCopy(title: "Stapel für jedes Thema", subtitle: "Schule, Uni, Sprachen oder Beruf: Alles bleibt sauber sortiert.", scene: .decks),
-            ScreenshotCopy(title: "Karten lernen statt Listen pauken", subtitle: "Tippen, umdrehen, bewerten. Teresa merkt sich den nächsten Termin.", scene: .study),
-            ScreenshotCopy(title: "KI hilft, wenn du willst", subtitle: "Optionale KI-Karten, Beispiele, Merksätze und Mini-Quiz per Abo.", scene: .ai),
-            ScreenshotCopy(title: "Sprache & Audio", subtitle: "Lass Fragen und Antworten schnell vorlesen, passend zur Stapel-Sprache.", scene: .audio)
+            ScreenshotCopy(title: "Lernen mit Fokus", subtitle: "Tippen, umdrehen, bewerten. Teresa merkt sich den nächsten Termin.", scene: .decks),
+            ScreenshotCopy(title: "KI-Hilfe direkt beim Lernen", subtitle: "Beispiele, Merksätze, Mini-Quiz oder einfachere Erklärungen.", scene: .study),
+            ScreenshotCopy(title: "KI-Karten erstellen", subtitle: "Aus deinem Thema entstehen neue Karten für den aktuellen Stapel.", scene: .ai),
+            ScreenshotCopy(title: "Audio & Sync", subtitle: "Stimmen, Tempo, iCloud und dein Abo an einem Ort.", scene: .audio)
         ],
         tabs: ("Home", "Heute", "Einstellungen"),
         deckTitle: "Deine Stapel",
@@ -70,10 +70,10 @@ let locales = [
         subhero: "Learn with Teresa",
         screenshots: [
             ScreenshotCopy(title: "Learn with Teresa", subtitle: "Your cards. Your pace. A little progress every day.", scene: .overview),
-            ScreenshotCopy(title: "Decks for every topic", subtitle: "School, university, languages, or work: keep everything tidy.", scene: .decks),
-            ScreenshotCopy(title: "Study cards, not long lists", subtitle: "Tap, flip, rate. Teresa remembers when to review next.", scene: .study),
-            ScreenshotCopy(title: "AI when you want it", subtitle: "Optional AI cards, examples, memory aids, and mini quizzes.", scene: .ai),
-            ScreenshotCopy(title: "Language & audio", subtitle: "Read questions and answers aloud, matched to each deck language.", scene: .audio)
+            ScreenshotCopy(title: "Focused study sessions", subtitle: "Tap, flip, rate. Teresa remembers when to review next.", scene: .decks),
+            ScreenshotCopy(title: "AI help while studying", subtitle: "Examples, memory aids, mini quizzes, and simpler explanations.", scene: .study),
+            ScreenshotCopy(title: "Create AI cards", subtitle: "Turn a topic into new cards for the deck you are working on.", scene: .ai),
+            ScreenshotCopy(title: "Audio & sync", subtitle: "Voices, speed, iCloud, and your subscription in one place.", scene: .audio)
         ],
         tabs: ("Home", "Today", "Settings"),
         deckTitle: "Your Decks",
@@ -198,8 +198,32 @@ func drawDeviceFrame(in rect: CGRect, canvas: Canvas, scene: Scene, copy: Locale
     roundedRect(screen, radius: canvas.isPad ? 38 : 50, fill: .black)
     NSGraphicsContext.current?.saveGraphicsState()
     NSBezierPath(roundedRect: screen, xRadius: canvas.isPad ? 38 : 50, yRadius: canvas.isPad ? 38 : 50).addClip()
-    drawMockApp(in: screen, scene: scene, copy: copy, isPad: canvas.isPad)
+    if drawSourceScreenshot(in: screen, scene: scene, canvas: canvas) == false {
+        drawMockApp(in: screen, scene: scene, copy: copy, isPad: canvas.isPad)
+    }
     NSGraphicsContext.current?.restoreGraphicsState()
+}
+
+@discardableResult
+func drawSourceScreenshot(in rect: CGRect, scene: Scene, canvas: Canvas) -> Bool {
+    let device = canvas.isPad ? "ipad" : "iphone"
+    let file = outputRoot.appendingPathComponent("source").appendingPathComponent(device).appendingPathComponent(scene.sourceFileName)
+    guard let image = NSImage(contentsOf: file) else {
+        return false
+    }
+
+    roundedRect(rect, radius: 0, fill: .black)
+    let imageSize = image.size
+    let scale = max(rect.width / imageSize.width, rect.height / imageSize.height)
+    let drawSize = CGSize(width: imageSize.width * scale, height: imageSize.height * scale)
+    let drawRect = CGRect(
+        x: rect.midX - drawSize.width / 2,
+        y: rect.midY - drawSize.height / 2,
+        width: drawSize.width,
+        height: drawSize.height
+    )
+    image.draw(in: drawRect, from: .zero, operation: .sourceOver, fraction: 1)
+    return true
 }
 
 func drawMockApp(in screen: CGRect, scene: Scene, copy: LocaleCopy, isPad: Bool) {
@@ -355,9 +379,9 @@ func render(copy: LocaleCopy, screenshot: ScreenshotCopy, index: Int, canvas: Ca
 
     let deviceRect: CGRect
     if canvas.isPad {
-        deviceRect = CGRect(x: 420, y: 170, width: 1208, height: 1670)
+        deviceRect = CGRect(x: 314, y: 130, width: 1420, height: 1893)
     } else {
-        deviceRect = CGRect(x: 142, y: 150, width: 1000, height: 1750)
+        deviceRect = CGRect(x: 212, y: 120, width: 860, height: 1870)
     }
     drawDeviceFrame(in: deviceRect, canvas: canvas, scene: screenshot.scene, copy: copy)
     NSGraphicsContext.restoreGraphicsState()
@@ -377,10 +401,20 @@ extension Scene {
     var fileName: String {
         switch self {
         case .overview: "learn_with_teresa"
-        case .decks: "decks"
-        case .study: "study_cards"
+        case .decks: "study_session"
+        case .study: "study_helpers"
         case .ai: "ai_features"
         case .audio: "language_audio"
+        }
+    }
+
+    var sourceFileName: String {
+        switch self {
+        case .overview: "01_home.png"
+        case .decks: "02_study.png"
+        case .study: "03_helper_menu.png"
+        case .ai: "04_ai_cards.png"
+        case .audio: "05_settings.png"
         }
     }
 }
