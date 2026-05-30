@@ -1588,6 +1588,10 @@ private struct AIPaywallView: View {
                 }
                 .font(.subheadline.weight(.medium))
 
+                Text(subscriptionManager.monthlyProduct == nil ? String(localized: "Abo: KI-Funktionen Monatlich · Laufzeit: 1 Monat · Preis wird geladen") : String(format: String(localized: "Abo: KI-Funktionen Monatlich · Laufzeit: 1 Monat · Preis: %@ pro Monat"), subscriptionManager.monthlyPriceText))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
                 Spacer()
 
                 if let statusMessage = subscriptionManager.statusMessage {
@@ -1643,6 +1647,15 @@ private struct AIPaywallView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .disabled(subscriptionManager.isLoading)
+
+                HStack(spacing: 10) {
+                    Link("Datenschutz", destination: URL(string: "https://jwolf-cologne.github.io/teresa-flashcards-site/privacy.html")!)
+                    Text("•")
+                        .foregroundStyle(.secondary)
+                    Link("Nutzungsbedingungen", destination: URL(string: "https://jwolf-cologne.github.io/teresa-flashcards-site/terms.html")!)
+                }
+                .font(.footnote.weight(.medium))
+                .frame(maxWidth: .infinity)
             }
             .padding(24)
             .navigationTitle("KI-Abo")

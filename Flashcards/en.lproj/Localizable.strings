@@ -120,6 +120,10 @@
 "KI-Karten für deinen aktuellen Stapel erzeugen" = "Create AI cards for your current deck";
 "Antworten einfacher erklären lassen" = "Make answers easier to understand";
 "Beispiele, Merksätze und Mini-Quiz erstellen" = "Create examples, memory aids, and mini quizzes";
+"Abo: KI-Funktionen Monatlich · Laufzeit: 1 Monat · Preis wird geladen" = "Subscription: AI Features Monthly · Duration: 1 month · Price loading";
+"Abo: KI-Funktionen Monatlich · Laufzeit: 1 Monat · Preis: %@ pro Monat" = "Subscription: AI Features Monthly · Duration: 1 month · Price: %@ per month";
+"Datenschutz" = "Privacy Policy";
+"Nutzungsbedingungen" = "Terms of Use";
 "KI-Abo" = "AI Subscription";
 "KI-Funktion nicht verfügbar" = "AI feature unavailable";
 "Schließen" = "Close";
