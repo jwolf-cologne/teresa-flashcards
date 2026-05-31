@@ -1588,12 +1588,6 @@ private struct AIPaywallView: View {
                 }
                 .font(.subheadline.weight(.medium))
 
-                Text(subscriptionManager.monthlyProduct == nil ? String(localized: "Abo: KI-Funktionen Monatlich · Laufzeit: 1 Monat · Preis wird geladen") : String(format: String(localized: "Abo: KI-Funktionen Monatlich · Laufzeit: 1 Monat · Preis: %@ pro Monat"), subscriptionManager.monthlyPriceText))
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-
-                Spacer()
-
                 if let statusMessage = subscriptionManager.statusMessage {
                     Text(statusMessage)
                         .font(.footnote)
@@ -1608,54 +1602,28 @@ private struct AIPaywallView: View {
                         .textSelection(.enabled)
                 }
 
-                Button {
-                    Task {
-                        if subscriptionManager.monthlyProduct == nil {
-                            await subscriptionManager.refresh()
-                        } else {
-                            await subscriptionManager.purchaseMonthlySubscription()
-                        }
-
-                        if subscriptionManager.hasActiveSubscription {
-                            dismiss()
-                        }
-                    }
-                } label: {
-                    HStack {
-                        if subscriptionManager.isLoading {
-                            ProgressView()
-                                .tint(.white)
-                        }
-
-                        Text(subscriptionManager.monthlyProduct == nil ? String(localized: "KI-Abo laden") : String(format: String(localized: "Für %@ pro Monat aktivieren"), subscriptionManager.monthlyPriceText))
+                SubscriptionStoreView(productIDs: [AISubscriptionManager.monthlyProductID]) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("KI-Abo")
                             .font(.headline)
+                        Text("Manuelles Lernen bleibt kostenlos. KI-Karten und Antwort-Hilfen benötigen ein Abo.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(subscriptionManager.isLoading)
-                .accessibilityIdentifier("aiSubscriptionPurchaseButton")
-
-                Button("Käufe wiederherstellen") {
+                .subscriptionStoreControlStyle(.buttons)
+                .storeButton(.visible, for: .restorePurchases)
+                .subscriptionStorePolicyDestination(url: URL(string: "https://jwolf-cologne.github.io/teresa-flashcards-site/privacy.html")!, for: .privacyPolicy)
+                .subscriptionStorePolicyDestination(url: URL(string: "https://jwolf-cologne.github.io/teresa-flashcards-site/terms.html")!, for: .termsOfService)
+                .onInAppPurchaseCompletion { _, _ in
                     Task {
-                        await subscriptionManager.restorePurchases()
+                        await subscriptionManager.refresh()
                         if subscriptionManager.hasActiveSubscription {
                             dismiss()
                         }
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .disabled(subscriptionManager.isLoading)
-
-                HStack(spacing: 10) {
-                    Link("Datenschutz", destination: URL(string: "https://jwolf-cologne.github.io/teresa-flashcards-site/privacy.html")!)
-                    Text("•")
-                        .foregroundStyle(.secondary)
-                    Link("Nutzungsbedingungen", destination: URL(string: "https://jwolf-cologne.github.io/teresa-flashcards-site/terms.html")!)
-                }
-                .font(.footnote.weight(.medium))
-                .frame(maxWidth: .infinity)
+                .accessibilityIdentifier("aiSubscriptionPurchaseButton")
             }
             .padding(24)
             .navigationTitle("KI-Abo")
