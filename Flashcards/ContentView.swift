@@ -2000,8 +2000,11 @@ struct StudyCardView: View {
                     Label("Antwort anzeigen", systemImage: "eye")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
+                        .frame(minHeight: 52)
                 }
                 .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(.orange)
             }
         }
         .frame(height: 128, alignment: .top)
