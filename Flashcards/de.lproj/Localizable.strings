@@ -1,4 +1,4 @@
-"Study Cards" = "Flashcards";
+"Study Cards" = "SmartCards Study";
 "Einstellungen" = "Einstellungen";
 "Frage" = "Frage";
 "Antwort" = "Antwort";
@@ -176,9 +176,10 @@
 "Deine Karten. Dein Tempo." = "Deine Karten. Dein Tempo.";
 "Learn with Teresa" = "Lerne mit Teresa";
 "Lerne mit Teresa" = "Lerne mit Teresa";
+"Bereit für deine Lernrunde" = "Bereit für deine Lernrunde";
 "Heute wartet 1 Karte auf dich." = "Heute wartet 1 Karte auf dich.";
 "Heute warten %lld Karten auf dich." = "Heute warten %lld Karten auf dich.";
-"Alles gelernt. Teresa ist bereit für neue Karten." = "Alles gelernt. Teresa ist bereit für neue Karten.";
+"Alles gelernt. Neue Karten warten auf dich." = "Alles gelernt. Neue Karten warten auf dich.";
 "Lerne diesen Stapel" = "Lerne diesen Stapel";
 "Heute ist in diesem Stapel nichts fällig." = "Heute ist in diesem Stapel nichts fällig.";
 "Heute wartet 1 Karte in diesem Stapel." = "Heute wartet 1 Karte in diesem Stapel.";

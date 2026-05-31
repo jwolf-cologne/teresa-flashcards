@@ -369,7 +369,7 @@ struct ContentView: View {
                         .font(.system(size: 48, weight: .bold))
                         .foregroundStyle(.blue, .purple)
 
-                    Text("Lerne mit Teresa")
+                    Text("Bereit für deine Lernrunde")
                         .font(.title.bold())
 
                     Text("Erstelle deinen ersten Stapel und starte deine Lernrunde.")
@@ -1050,12 +1050,12 @@ private struct DeckOverviewHeroView<LearningAction: View>: View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(alignment: .top, spacing: 14) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Lerne mit Teresa")
+                    Text("Bereit für deine Lernrunde")
                         .font(.system(.largeTitle, design: .rounded, weight: .bold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.72)
 
-                    Text(dueCards > 0 ? localizedDueMessage(dueCards) : String(localized: "Alles gelernt. Teresa ist bereit für neue Karten."))
+                    Text(dueCards > 0 ? localizedDueMessage(dueCards) : String(localized: "Alles gelernt. Neue Karten warten auf dich."))
                         .font(.headline)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
