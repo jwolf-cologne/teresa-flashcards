@@ -369,7 +369,7 @@ struct ContentView: View {
                         .font(.system(size: 48, weight: .bold))
                         .foregroundStyle(.blue, .purple)
 
-                    Text("Bereit für deine Lernrunde")
+                    Text("Lernrunde starten")
                         .font(.title.bold())
 
                     Text("Erstelle deinen ersten Stapel und starte deine Lernrunde.")
@@ -1050,7 +1050,7 @@ private struct DeckOverviewHeroView<LearningAction: View>: View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(alignment: .top, spacing: 14) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Bereit für deine Lernrunde")
+                    Text("Lernrunde starten")
                         .font(.system(.largeTitle, design: .rounded, weight: .bold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.72)
